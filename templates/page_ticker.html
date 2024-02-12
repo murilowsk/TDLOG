@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %} {{messages['ticker_content'] }} {% endblock %}
+
+{% block form %}
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="/">Stock market data finder</a>
+  <hr align="center" color="black">
+  <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  {% if current_user.is_authenticated %}
+  <form action="#" method="post">
+    <input class="form-control form-control-dark w-100" type="text" name="user_input" size="111" placeholder="Write here the ticker of the company you want to search" value="{{ request.form['user_input'] }}" aria-label="Search" />                        
+  </form>
+  <div class="text-end">
+    <a type="button" class="btn btn-outline-primary rounded-0" href="{{url_for('login')}}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+        <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+        <path fill-rule="evenodd" d="M15.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L12.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+      </svg>
+      Hi {{ current_user.username }}, see your profile
+    </a>
+    <a type="button" class="btn btn-outline-primary rounded-0" href="/logout">Logout</a>
+    <a type="button" class="btn btn-outline-primary rounded-0" href="{{url_for('register')}}">Register</a>
+  </div>
+  {% else %}
+  <form action="#" method="post">
+    <input class="form-control form-control-dark w-100" type="text" name="user_input" size="140" placeholder="Write here the ticker of the company you want to search" value="{{ request.form['user_input'] }}" aria-label="Search" />                        
+  </form>
+  <div class="text-end">
+    <a type="button" class="btn btn-outline-primary rounded-0" href="/login">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
+        <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+        <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"/>
+      </svg>
+      Login
+    </a>
+    <a type="button" class="btn btn-outline-primary rounded-0" href="/register">Register</a>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">     
+  <div class="container-fluid">
+    <div class="row">
+      <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <div class="position-sticky pt-3">
+          <ul class="nav flex-column">
+
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>{{ messages['ticker_title'] }}</span>
+            </h6>
+
+            <li class="nav-link">
+              <span>{{ messages['ticker_content'] }}</span>
+            </li>
+
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>Company name:</span>
+            </h6>
+
+            <li class="nav-link">
+              <span>{{ shortName }}</span>
+            </li>
+
+            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+              <span>Summary : </span>
+            </h6>
+
+            <li class="nav-link scroll">
+              <span>{{ summary }}</span>
+            </li>
+
+          </ul>
+        </div>
+      </nav>
+
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h4>Historical stock values : </h4>
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+          </div>
+          {% if current_user.is_authenticated %}
+          <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+              <buttom type="buttom "class="btn btn-sm btn-outline-secondary rounded-0">Save as a favorite</button>
+            </div>
+          </div>
+          {% endif %}
+        </div> 
+        <div>
+          <form action="#" method="post">
+            <input type="submit" name="interval" value="5d" class="btn btn-light"/>
+        
+        
+            <input type="submit" name="interval" value="1mo" class="btn btn-light"/>
+        
+        
+            <input type="submit" name="interval" value="6mo" class="btn btn-light"/>
+        
+        
+            <input type="submit" name="interval" value="Max" class="btn btn-light"/>
+        </form>
+      
+        </div>
+        <div class='container'>
+          <div class="row" >
+            <div class="col-md-auto">
+              <canvas id="lineChart" width='800' height="400"></canvas>
+              <script>
+                var ctx = document.getElementById("lineChart").getContext("2d");
+                var lineChart = new Chart(ctx, {
+                  type: "line",
+                  data: {
+                        labels: {{ labels | safe }}, 
+                        datasets: [
+                            {
+                                label: 'Closing price',
+                                data: {{ values | safe }},
+                                fill: true,
+                                borderColor: "rgb(32, 150, 80)",
+                                lineTension: 0.5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: false
+                    }
+                });
+              </script>  
+            </div>
+            <div class="col"><h5 class="border border-secondary" >Actual value (calculated): $ {{ price }}</h5>
+              <h5 class="border border-secondary" >Recommendation: {{ recommendation }}</h5></div>
+          </div>
+        </div>
+          
+
+
+      </main>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
